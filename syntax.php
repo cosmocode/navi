@@ -20,7 +20,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Andreas Gohr',
             'email'  => 'gohr@cosmocode.de',
-            'date'   => '2008-07-13',
+            'date'   => '2008-08-01',
             'name'   => 'Navigation Plugin',
             'desc'   => 'Build a navigation menu from a list',
             'url'    => 'http://wiki.splitbrain.org/plugin:navi',
@@ -125,6 +125,9 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         foreach((array) $data as $pid => $info){
             // only show if we are in the "path"
             if(array_diff($info['parents'],$parent)) continue;
+
+            // skip every non readable page
+            if(auth_quickaclcheck(cleanID($info['page'])) < AUTH_READ) continue;
 
             if($info['lvl'] == $lvl){
                 if($open) $R->listitem_close();
