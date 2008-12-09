@@ -17,14 +17,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      * return some info
      */
     function getInfo(){
-        return array(
-            'author' => 'Andreas Gohr',
-            'email'  => 'gohr@cosmocode.de',
-            'date'   => '2008-08-01',
-            'name'   => 'Navigation Plugin',
-            'desc'   => 'Build a navigation menu from a list',
-            'url'    => 'http://wiki.splitbrain.org/plugin:navi',
-        );
+        return confToHash(dirname(__FILE__).'/info.txt');
     }
 
     /**
@@ -96,7 +89,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        return $list;
+        return array(wikiFN($id),$list);
     }
 
     /**
@@ -107,7 +100,13 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
     function render($format, &$R, $data) {
         global $INFO;
         global $ID;
-        if($format == 'metadata') return false;
+        $fn   = $data[0];
+        $data = $data[1];
+
+        if($format == 'metadata'){
+            $R->meta['relation']['naviplugin'][] = $fn;
+            return true;
+        }
 
         $R->info['cache'] = false; // no cache please
 
