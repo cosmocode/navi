@@ -52,7 +52,9 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      * Handle the match
      */
     function handle($match, $state, $pos, &$handler){
-        $id = cleanID(substr($match,7,-2));
+        $id = substr($match,7,-2);
+        list($id,$opt) = explode('?',$id,2);
+        $id = cleanID($id);
 
         // fetch the instructions of the control page
         $instructions = p_cached_instructions(wikiFN($id),false,$id);
@@ -89,7 +91,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        return array(wikiFN($id),$list);
+        return array(wikiFN($id),$list,$opt);
     }
 
     /**
@@ -101,6 +103,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         global $INFO;
         global $ID;
         $fn   = $data[0];
+        $opt  = $data[2];
         $data = $data[1];
 
         if($format == 'metadata'){
@@ -110,8 +113,36 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
         $R->info['cache'] = false; // no cache please
 
-        $parent = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
-        array_push($parent,$INFO['id']);
+        $parent = array();
+        if(isset($data[$INFO['id']])){
+            $parent = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
+            array_push($parent,$INFO['id']);
+        }elseif($opt == 'ns'){
+            $ns   = $INFO['id'];
+
+            // traverse up for matching namespaces
+            do {
+                $ns = getNS($ns);
+                $try = "$ns:";
+                resolve_pageid('',$try,$foo);
+                if(isset($data[$try])){
+                    // got a start page
+                    $parent = (array) $data[$try]['parents'];
+                    array_push($parent,$try);
+                    break;
+                }else{
+                    // search for the first page matching the namespace
+                    foreach($data as $key => $junk){
+                        if(getNS($key) == $ns){
+                            $parent = (array) $data[$key]['parents'];
+                            array_push($parent,$key);
+                            break;
+                        }
+                    }
+                }
+
+            }while($ns);
+        }
 
         // we need the top ID for the renderer
         $oldid = $ID;
