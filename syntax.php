@@ -136,7 +136,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                         if(getNS($key) == $ns){
                             $parent = (array) $data[$key]['parents'];
                             array_push($parent,$key);
-                            break;
+                            break 2;
                         }
                     }
                 }
