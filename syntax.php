@@ -84,7 +84,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 $page = cleanID($instructions[$i][1][0]);
                 $list[$page] = array(
                                      'parents' => $parents,
-                                     'page' => $instructions[$i][1][0],
+                                     'page' => cleanID($instructions[$i][1][0]),
                                      'title' => $instructions[$i][1][1],
                                      'lvl' => $lvl
                                     );
