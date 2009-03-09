@@ -1,6 +1,6 @@
 author Andreas Gohr
 email  gohr@cosmocode.de
-date   2009-02-03
+date   2009-03-09
 name   Navigation Plugin
 desc   Build a navigation menu from a list
 url    http://wiki.splitbrain.org/plugin:navi
