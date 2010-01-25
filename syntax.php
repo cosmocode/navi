@@ -14,13 +14,6 @@ require_once(DOKU_PLUGIN.'syntax.php');
 class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
     /**
-     * return some info
-     */
-    function getInfo(){
-        return confToHash(dirname(__FILE__).'/info.txt');
-    }
-
-    /**
      * What kind of syntax are we?
      */
     function getType(){

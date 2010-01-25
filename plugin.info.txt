@@ -1,7 +1,8 @@
+base   navi
 author Andreas Gohr
 email  gohr@cosmocode.de
 date   2009-03-09
 name   Navigation Plugin
 desc   Build a navigation menu from a list
-url    http://wiki.splitbrain.org/plugin:navi
+url    http://www.dokuwiki.org/plugin:navi
 

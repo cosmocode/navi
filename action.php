@@ -15,13 +15,6 @@ require_once(DOKU_PLUGIN.'action.php');
 class action_plugin_navi extends DokuWiki_Action_Plugin {
 
     /**
-     * return some info
-     */
-    function getInfo() {
-        return confToHash(dirname(__FILE__).'/info.txt');
-    }
-
-    /**
      * plugin should use this method to register its handlers with the dokuwiki's event controller
      */
     function register(&$controller) {
