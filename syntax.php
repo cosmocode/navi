@@ -74,12 +74,11 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }elseif($instructions[$i][0] == 'listitem_close'){
                 $cnt++;
             }elseif($instructions[$i][0] == 'internallink'){
-                $page = cleanID($instructions[$i][1][0]);
                 $list[$page] = array(
                                      'parents' => $parents,
-                                     'page' => cleanID($instructions[$i][1][0]),
-                                     'title' => $instructions[$i][1][1],
-                                     'lvl' => $lvl
+                                     'page'    => cleanID($instructions[$i][1][0]),
+                                     'title'   => $instructions[$i][1][1],
+                                     'lvl'     => $lvl
                                     );
             }
         }
@@ -177,7 +176,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
             $R->listcontent_open();
             if(($format == 'xhtml') && ($info['page'] == $current)) $R->doc .= '<span class="current">';
-            $R->internallink($info['page'],$info['title']);
+            $R->internallink(':'.$info['page'],$info['title']);
             if(($format == 'xhtml') && ($info['page'] == $current)) $R->doc .= '</span>';
             $R->listcontent_close();
         }
