@@ -74,9 +74,10 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }elseif($instructions[$i][0] == 'listitem_close'){
                 $cnt++;
             }elseif($instructions[$i][0] == 'internallink'){
+                $page = cleanID($instructions[$i][1][0]);
                 $list[$page] = array(
                                      'parents' => $parents,
-                                     'page'    => cleanID($instructions[$i][1][0]),
+                                     'page'    => $page,
                                      'title'   => $instructions[$i][1][1],
                                      'lvl'     => $lvl
                                     );
