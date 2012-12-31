@@ -113,7 +113,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         if(isset($data[$INFO['id']])){
             $parent = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
             array_push($parent,$INFO['id']);
-            $current = $INFO['id'];
         }elseif($opt == 'ns'){
             $ns   = $INFO['id'];
 
@@ -126,7 +125,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                     // got a start page
                     $parent = (array) $data[$try]['parents'];
                     array_push($parent,$try);
-                    $current = $try;
                     break;
                 }else{
                     // search for the first page matching the namespace
@@ -134,7 +132,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                         if(getNS($key) == $ns){
                             $parent = (array) $data[$key]['parents'];
                             array_push($parent,$key);
-                            $current = $key;
                             break 2;
                         }
                     }
@@ -178,9 +175,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }
 
             $R->listcontent_open();
-            if(($format == 'xhtml') && ($info['page'] == $current)) $R->doc .= '<span class="current">';
             $R->internallink(':'.$info['page'],$info['title']);
-            if(($format == 'xhtml') && ($info['page'] == $current)) $R->doc .= '</span>';
             $R->listcontent_close();
         }
         while($lvl > 0){
