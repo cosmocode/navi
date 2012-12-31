@@ -144,7 +144,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         }
 
         // we need the top ID for the renderer
-        $oldid = $ID;
         $ID = $INFO['id'];
 
         // create a correctly nested list (or so I hope)
@@ -157,8 +156,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
             // skip every non readable page
             if(auth_quickaclcheck(cleanID($info['page'])) < AUTH_READ) continue;
-
-            $ID = $oldid;
 
             if($info['lvl'] == $lvl){
                 if($open) $R->listitem_close();
