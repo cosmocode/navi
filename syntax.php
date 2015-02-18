@@ -175,7 +175,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 // more than one run is bad nesting!
                 for($lvl; $lvl < $info['lvl']; $lvl++){
                     $R->listu_open();
-                    $R->listitem_open($lvl);
+                    $R->listitem_open($lvl+1);
                     $open = true;
                 }
             }
