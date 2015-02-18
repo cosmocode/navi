@@ -44,7 +44,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, &$handler){
+    function handle($match, $state, $pos, Doku_Handler $handler){
         global $ID;
 
         $id = substr($match,7,-2);
@@ -95,7 +95,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      *
      * We handle all modes (except meta) because we pass all output creation back to the parent
      */
-    function render($format, &$R, $data) {
+    function render($format, Doku_Renderer $R, $data) {
         global $INFO;
         global $ID;
         $fn   = $data[0];
@@ -165,7 +165,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 $R->listitem_open($lvl);
                 $open = true;
             }elseif($lvl > $info['lvl']){
-                for($lvl; $lvl > $info['lvl']; $lvl--){
+                for($lvl; $lvl > $info['lvl']; --$lvl){
                   $R->listitem_close();
                   $R->listu_close();
                 }
@@ -173,9 +173,9 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 $R->listitem_open($lvl);
             }elseif($lvl < $info['lvl']){
                 // more than one run is bad nesting!
-                for($lvl; $lvl < $info['lvl']; $lvl++){
+                for($lvl; $lvl < $info['lvl']; ++$lvl){
                     $R->listu_open();
-                    $R->listitem_open($lvl);
+                    $R->listitem_open($lvl+1);
                     $open = true;
                 }
             }
@@ -189,7 +189,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         while($lvl > 0){
             $R->listitem_close();
             $R->listu_close();
-            $lvl--;
+            --$lvl;
         }
 
         return true;
