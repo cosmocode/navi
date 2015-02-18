@@ -17,7 +17,7 @@ class action_plugin_navi extends DokuWiki_Action_Plugin {
     /**
      * plugin should use this method to register its handlers with the dokuwiki's event controller
      */
-    function register(&$controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook('PARSER_CACHE_USE','BEFORE', $this, 'handle_cache_prepare');
     }
 
