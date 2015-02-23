@@ -151,9 +151,29 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         $open = false;
         $lvl  = 1;
         $R->listu_open();
+
+        // read if item has childs and if it is open or closed
+        $upper=array();
+        foreach((array) $data as $pid => $info){
+            $state=(array_diff($info['parents'],$parent)) ? 'close':'';
+            $countparents=count($info['parents']);
+            if ( $countparents > '0') {
+                for($i=0; $i < $countparents; $i++){
+                    $upperlevel=$countparents-1;
+                    $upper[$info['parents'][$upperlevel]]=($state=='close')? 'close' : 'open';
+                }
+            }
+        }
+        unset($pid);
+
         foreach((array) $data as $pid => $info){
             // only show if we are in the "path"
             if(array_diff($info['parents'],$parent)) continue;
+            if ($upper[$pid]) {
+                $menuitem=($upper[$pid]=='open') ? 'open' : 'close';
+            } else {
+                $menuitem='';
+            }
 
             // skip every non readable page
             if(auth_quickaclcheck(cleanID($info['page'])) < AUTH_READ) continue;
@@ -162,7 +182,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
             if($info['lvl'] == $lvl){
                 if($open) $R->listitem_close();
-                $R->listitem_open($lvl);
+                $R->listitem_open($lvl.' '.$menuitem);
                 $open = true;
             }elseif($lvl > $info['lvl']){
                 for($lvl; $lvl > $info['lvl']; --$lvl){
@@ -170,12 +190,12 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                   $R->listu_close();
                 }
                 $R->listitem_close();
-                $R->listitem_open($lvl);
+                $R->listitem_open($lvl.' '.$menuitem);
             }elseif($lvl < $info['lvl']){
                 // more than one run is bad nesting!
                 for($lvl; $lvl < $info['lvl']; ++$lvl){
                     $R->listu_open();
-                    $R->listitem_open($lvl+1);
+                    $R->listitem_open($lvl+1 .' '.$menuitem);
                     $open = true;
                 }
             }
