@@ -1,0 +1,2 @@
+div#dokuwiki__aside li.open   { list-style-image: url(../../images/open.png); }
+div#dokuwiki__aside li.close  { list-style-image: url(../../images/closed.png); }
