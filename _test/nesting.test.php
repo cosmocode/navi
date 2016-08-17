@@ -35,7 +35,8 @@ class nesting_plugin_navi_test extends DokuWikiTest {
 </li>
 <li class="level1 close"><div class="li"><a href="/./doku.php?id=b" class="wikilink2" title="b" rel="nofollow">b</a></div>
 </li>
-</ul>';
+</ul>
+';
         $this->assertEquals($expectedHTML, $actualHTML);
 
     }
@@ -43,10 +44,10 @@ class nesting_plugin_navi_test extends DokuWikiTest {
     public function test_controlpage_with_double_pages() {
         // arrange
         $controlpage = "
-  * **[[en:products:a:start|BasePage]]**
-    * **[[en:products:b:d:start|2nd-level Page with hidden child]]**
+  * [[en:products:a:start|BasePage]]
+    * [[en:products:b:d:start|2nd-level Page with hidden child]]
       * [[en:products:c:projects|hidden 3rd-level page]]
-    * **[[en:products:b:archive:start|2nd-level pape]]**
+    * [[en:products:b:archive:start|2nd-level pape]]
     * [[en:products:c:start|current 2nd-level page with visible child]]
       * [[en:products:c:projects|visible 3rd-level page]]
 ";
@@ -58,27 +59,39 @@ class nesting_plugin_navi_test extends DokuWikiTest {
         $info = array();
         $ID = 'en:products:c:start';
         $INFO['id'] = 'en:products:c:start';
-//        print_r(p_get_instructions('{{navi>controlpage}}'));
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
-        // assert
-        $expectedHTML = '<ul>
-<li class="level1 open"><div class="li"><a href="/./doku.php?id=en:products:a:start" class="wikilink2" title="en:products:a:start" rel="nofollow">BasePage</a></div>
-<ul>
-<li class="level2 close"><div class="li"><a href="/./doku.php?id=en:products:b:d:start" class="wikilink2" title="en:products:b:d:start" rel="nofollow">2nd-level Page with hidden child</a></div>
-</li>
-<li class="level2 "><div class="li"><a href="/./doku.php?id=en:products:b:archive:start" class="wikilink2" title="en:products:b:archive:start" rel="nofollow">2nd-level pape</a></div>
-</li>
-<li class="level2 open"><div class="li"><span class="current"><span class="curid"><a href="/./doku.php?id=en:products:c:start" class="wikilink2" title="en:products:c:start" rel="nofollow">current 2nd-level page with visible child</a></span></span></div>
-<ul>
-<li class="level3 "><div class="li"><a href="/./doku.php?id=en:products:c:projects" class="wikilink2" title="en:products:c:projects" rel="nofollow">visible 3rd-level page</a></div>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>';
-        $this->assertEquals($expectedHTML, $actualHTML);
+        $pq = phpQuery::newDocumentXHTML($actualHTML);
+
+        $actualPages = array();
+        foreach ($pq->find('a') as $page) {
+            $actualPages[] = $page->getAttribute('title');
+        }
+
+        $actualLiOpen = array();
+        foreach ($pq->find('li.open > div > a, li.open > div > span > span > a') as $page) {
+            $actualLiOpen[] = $page->getAttribute('title');
+        }
+
+        $actualLiClose = array();
+        foreach ($pq->find('li.close > div > a, li.close > div > span > span > a') as $page) {
+            $actualLiClose[] = $page->getAttribute('title');
+        }
+
+        $this->assertEquals(array(
+            0 => 'en:products:a:start',
+            1 => 'en:products:b:d:start',
+            2 => 'en:products:b:archive:start',
+            3 => 'en:products:c:start',
+            4 => 'en:products:c:projects',
+        ), $actualPages, 'the correct pages in the correct order');
+        $this->assertEquals(array(
+            0 => 'en:products:a:start',
+            1 => 'en:products:c:start',
+        ), $actualLiOpen, 'the pages which have have children and are open should have the "open" class');
+        $this->assertEquals(array(
+            0 => 'en:products:b:d:start',
+        ), $actualLiClose, 'the pages which have have children, but are closed should have the "close" class');
 
     }
 }
