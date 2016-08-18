@@ -85,6 +85,14 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                                      'title'   => $instructions[$i][1][1],
                                      'lvl'     => $lvl
                                     );
+            } elseif ($instructions[$i][0] == 'externallink') {
+                $url = $instructions[$i][1][0];
+                $list['_'.$page] = array(
+                    'parents' => $parents,
+                    'page'    => $url,
+                    'title'   => $instructions[$i][1][1],
+                    'lvl'     => $lvl
+                );
             }
         }
         return array(wikiFN($id),$list,$opt);
@@ -191,7 +199,12 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             }
 
             $R->listcontent_open();
-            $R->internallink(':'.$info['page'],$info['title']);
+            if (substr($pid, 0, 1) != '_') {
+                $R->internallink(':' . $info['page'], $info['title']);
+            } else {
+                $R->externallink($info['page'], $info['title']);
+            }
+
             $R->listcontent_close();
         }
         while($lvl > 0){
