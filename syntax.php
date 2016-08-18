@@ -104,7 +104,6 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      * We handle all modes (except meta) because we pass all output creation back to the parent
      */
     function render($format, Doku_Renderer $R, $data) {
-        global $INFO;
         $fn   = $data[0];
         $opt  = $data[2];
         $data = $data[1];
@@ -116,10 +115,19 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
         $R->info['cache'] = false; // no cache please
 
-        $parent = array();
+        $path = $this->getOpenPath($data, $opt);
+
+        $this->renderTree($data, $path, $R);
+
+        return true;
+    }
+
+    public function getOpenPath($data, $opt) {
+        global $INFO;
+        $openPath = array();
         if(isset($data[$INFO['id']])){
-            $parent = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
-            array_push($parent,$INFO['id']);
+            $openPath = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
+            array_push($openPath,$INFO['id']);
         }elseif($opt == 'ns'){
             $ns   = $INFO['id'];
 
@@ -130,15 +138,15 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 resolve_pageid('',$try,$foo);
                 if(isset($data[$try])){
                     // got a start page
-                    $parent = (array) $data[$try]['parents'];
-                    array_push($parent,$try);
+                    $openPath = (array) $data[$try]['parents'];
+                    array_push($openPath,$try);
                     break;
                 }else{
                     // search for the first page matching the namespace
                     foreach($data as $key => $junk){
                         if(getNS($key) == $ns){
-                            $parent = (array) $data[$key]['parents'];
-                            array_push($parent,$key);
+                            $openPath = (array) $data[$key]['parents'];
+                            array_push($openPath,$key);
                             break 2;
                         }
                     }
@@ -146,54 +154,68 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
             }while($ns);
         }
+        return $openPath;
+    }
 
-        // create a correctly nested list (or so I hope)
+    /**
+     * @param $data
+     * @param $parent
+     * @param Doku_Renderer $R
+     */
+    public function renderTree($data, $parent, Doku_Renderer $R) {
+// create a correctly nested list (or so I hope)
         $open = false;
-        $lvl  = 1;
+        $lvl = 1;
         $R->listu_open();
 
         // read if item has childs and if it is open or closed
-        $upper=array();
-        foreach((array) $data as $pid => $info){
-            $state=(array_diff($info['parents'],$parent)) ? 'close':'';
-            $countparents=count($info['parents']);
-            if ( $countparents > '0') {
-                for($i=0; $i < $countparents; $i++){
-                    $upperlevel=$countparents-1;
-                    $upper[$info['parents'][$upperlevel]]=($state=='close')? 'close' : 'open';
+        $upper = array();
+        foreach ((array)$data as $pid => $info) {
+            $state = (array_diff($info['parents'], $parent)) ? 'close' : '';
+            $countparents = count($info['parents']);
+            if ($countparents > '0') {
+                for ($i = 0; $i < $countparents; $i++) {
+                    $upperlevel = $countparents - 1;
+                    $upper[$info['parents'][$upperlevel]] = ($state == 'close') ? 'close' : 'open';
                 }
             }
         }
         unset($pid);
 
-        foreach((array) $data as $pid => $info){
+        foreach ((array)$data as $pid => $info) {
             // only show if we are in the "path"
-            if(array_diff($info['parents'],$parent)) continue;
+            if (array_diff($info['parents'], $parent)) {
+                continue;
+            }
             if ($upper[$pid]) {
-                $menuitem=($upper[$pid]=='open') ? 'open' : 'close';
+                $menuitem = ($upper[$pid] == 'open') ? 'open' : 'close';
             } else {
-                $menuitem='';
+                $menuitem = '';
             }
 
             // skip every non readable page
-            if(auth_quickaclcheck(cleanID($info['page'])) < AUTH_READ) continue;
+            if (auth_quickaclcheck(cleanID($info['page'])) < AUTH_READ) {
+                continue;
+            }
 
-            if($info['lvl'] == $lvl){
-                if($open) $R->listitem_close();
-                $R->listitem_open($lvl.' '.$menuitem);
+            if ($info['lvl'] == $lvl) {
+                if ($open) {
+                    $R->listitem_close();
+                }
+                $R->listitem_open($lvl . ' ' . $menuitem);
                 $open = true;
-            }elseif($lvl > $info['lvl']){
-                for($lvl; $lvl > $info['lvl']; --$lvl){
-                  $R->listitem_close();
-                  $R->listu_close();
+            } elseif ($lvl > $info['lvl']) {
+                for ($lvl; $lvl > $info['lvl']; --$lvl) {
+                    $R->listitem_close();
+                    $R->listu_close();
                 }
                 $R->listitem_close();
-                $R->listitem_open($lvl.' '.$menuitem);
-            }elseif($lvl < $info['lvl']){
+                $R->listitem_open($lvl . ' ' . $menuitem);
+            } elseif ($lvl < $info['lvl']) {
                 // more than one run is bad nesting!
-                for($lvl; $lvl < $info['lvl']; ++$lvl){
+                for ($lvl; $lvl < $info['lvl']; ++$lvl) {
                     $R->listu_open();
-                    $R->listitem_open($lvl+1 .' '.$menuitem);
+                    $R->listitem_open($lvl + 1 . ' ' . $menuitem);
                     $open = true;
                 }
             }
@@ -207,12 +229,10 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
 
             $R->listcontent_close();
         }
-        while($lvl > 0){
+        while ($lvl > 0) {
             $R->listitem_close();
             $R->listu_close();
             --$lvl;
         }
-
-        return true;
     }
 }
