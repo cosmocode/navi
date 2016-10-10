@@ -1,0 +1,3 @@
+<?php
+
+$conf['arrow'] = 'left';

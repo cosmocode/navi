@@ -116,8 +116,11 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         $R->info['cache'] = false; // no cache please
 
         $path = $this->getOpenPath($data, $opt);
+        $arrowLocation = $this->getConf('arrow');
 
+        $R->doc .= '<div class="plugin__navi ' . $arrowLocation . '">';
         $this->renderTree($data, $path, $R);
+        $R->doc .= '</div>';
 
         return true;
     }
