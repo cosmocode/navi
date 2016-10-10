@@ -1,9 +1,23 @@
 div.plugin__navi {
+    span.arrowUnderlay {
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    &.none {
+        span.arrowUnderlay {
+            display: none;
+        }
+    }
+
 
     &.left {
         li.open   { list-style-image: url(../../images/open.png); }
         li.close  { list-style-image: url(../../images/closed.png); }
 
+        span.arrowUnderlay {
+            display: none;
+        }
     }
 
     &.right {
@@ -14,5 +28,8 @@ div.plugin__navi {
             background: no-repeat top right/0.8em url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUBAMAAAB/pwA+AAAAMFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABaPxwLAAAAD3RSTlMAAQIECiMlYWJ3psPc3v2CpcpnAAAARklEQVQIW2NgIAgUoLQBg9QVCIvjGUP8Xwcws/83A8d/sDCY6gcLg0kwHyoHEoBIgUSggiDh+VBjgMIwQZghYMB+hIF8AABJKyB+OnNcUQAAAABJRU5ErkJggg==);
         }
 
+        span.arrowUnderlay {
+            float: right;
+        }
     }
 }
