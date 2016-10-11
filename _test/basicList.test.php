@@ -30,13 +30,13 @@ class basic_plugin_navi_test extends DokuWikiTest {
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
         // assert
-        $expectedHTML = '<ul>
+        $expectedHTML = '<div class="plugin__navi left"><ul>
 <li class="level1 "><div class="li"><a href="/./doku.php?id=a" class="wikilink2" title="a" rel="nofollow">a</a></div>
 </li>
 <li class="level1 close"><div class="li"><a href="/./doku.php?id=b" class="wikilink2" title="b" rel="nofollow">b</a></div>
 </li>
 </ul>
-';
+</div>';
         $this->assertEquals($expectedHTML, $actualHTML);
 
     }
