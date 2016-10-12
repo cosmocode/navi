@@ -1,3 +1,4 @@
+#dokuwiki__aside, .sidebar_box {
 div.plugin__navi {
     span.arrowUnderlay {
         padding: 4px;
@@ -25,6 +26,10 @@ div.plugin__navi {
 
 
     &.left {
+        li {
+            list-style-type: none;
+        }
+
         span.arrowUnderlay {
             position: absolute;
             left: 1.3em;
@@ -36,4 +41,5 @@ div.plugin__navi {
             float: right;
         }
     }
+}
 }
