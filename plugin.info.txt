@@ -1,7 +1,7 @@
 base   navi
 author Andreas Gohr
 email  dokuwiki@cosmocode.de
-date   2015-02-26
+date   2016-10-12
 name   Navigation Plugin
 desc   Build a navigation menu from a list
 url    http://www.dokuwiki.org/plugin:navi
