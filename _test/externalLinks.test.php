@@ -7,19 +7,23 @@
  * @group plugins
  *
  */
-class external_plugin_navi_test extends DokuWikiTest {
+class external_plugin_navi_test extends DokuWikiTest
+{
 
     protected $pluginsEnabled = array('navi');
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
         parent::tearDown();
     }
 
-    public function test_controlpage_with_external_link() {
+    public function test_controlpage_with_external_link()
+    {
         // arrange
         $controlpage = "
   * [[en:products:a:start|BasePage]]

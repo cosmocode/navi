@@ -1,7 +1,7 @@
-jQuery(function() {
+jQuery(function () {
     'use strict';
-    
-    jQuery('li.open, li.close').find('> div.li').each(function (index, element){
+
+    jQuery('li.open, li.close').find('> div.li').each(function (index, element) {
         var link = jQuery(element).find('a').attr('href');
         var $arrowSpan = jQuery('<span></span>').click(function (event) {
             window.location = link;

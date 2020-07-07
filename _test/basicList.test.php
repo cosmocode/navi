@@ -7,19 +7,23 @@
  * @group plugins
  *
  */
-class basic_plugin_navi_test extends DokuWikiTest {
+class basic_plugin_navi_test extends DokuWikiTest
+{
 
     protected $pluginsEnabled = array('navi');
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
         parent::tearDown();
     }
 
-    public function test_controlpage_simple() {
+    public function test_controlpage_simple()
+    {
         // arrange
         $controlpage = "  * [[a]]\n  * [[b]]\n    * [[c]]";
         saveWikiText('controlpage', $controlpage, '');
@@ -41,7 +45,8 @@ class basic_plugin_navi_test extends DokuWikiTest {
 
     }
 
-    public function test_controlpage_complex() {
+    public function test_controlpage_complex()
+    {
         // arrange
         $controlpage = "
   * [[en:products:a:start|BasePage]]

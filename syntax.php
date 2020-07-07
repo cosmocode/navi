@@ -6,53 +6,59 @@
  * @author     Andreas Gohr <gohr@cosmocode.de>
  */
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
+if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+require_once(DOKU_PLUGIN . 'syntax.php');
 
-class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
+{
 
     /**
      * What kind of syntax are we?
      */
-    function getType(){
+    function getType()
+    {
         return 'substition';
     }
 
     /**
      * What about paragraphs?
      */
-    function getPType(){
+    function getPType()
+    {
         return 'block';
     }
 
     /**
      * Where to sort in?
      */
-    function getSort(){
+    function getSort()
+    {
         return 155;
     }
 
     /**
      * Connect pattern to lexer
      */
-    function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('{{navi>[^}]+}}',$mode,'plugin_navi');
+    function connectTo($mode)
+    {
+        $this->Lexer->addSpecialPattern('{{navi>[^}]+}}', $mode, 'plugin_navi');
     }
 
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, Doku_Handler $handler){
+    function handle($match, $state, $pos, Doku_Handler $handler)
+    {
         global $ID;
 
-        $id = substr($match,7,-2);
-        list($id,$opt) = explode('?',$id,2);
+        $id = substr($match, 7, -2);
+        list($id, $opt) = explode('?', $id, 2);
         $id = cleanID($id);
 
         // fetch the instructions of the control page
-        $instructions = p_cached_instructions(wikiFN($id),false,$id);
+        $instructions = p_cached_instructions(wikiFN($id), false, $id);
 
         // prepare some vars
         $max = count($instructions);
@@ -60,42 +66,42 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         $lvl = 0;
         $parents = array();
         $page = '';
-        $cnt  = 0;
+        $cnt = 0;
 
         // build a lookup table
-        for($i=0; $i<$max; $i++){
-            if($instructions[$i][0] == 'listu_open'){
+        for ($i = 0; $i < $max; $i++) {
+            if ($instructions[$i][0] == 'listu_open') {
                 $pre = false;
                 $lvl++;
-                if($page) array_push($parents,$page);
-            }elseif($instructions[$i][0] == 'listu_close'){
+                if ($page) array_push($parents, $page);
+            } elseif ($instructions[$i][0] == 'listu_close') {
                 $lvl--;
                 array_pop($parents);
-            }elseif($pre || $lvl == 0){
+            } elseif ($pre || $lvl == 0) {
                 unset($instructions[$i]);
-            }elseif($instructions[$i][0] == 'listitem_close'){
+            } elseif ($instructions[$i][0] == 'listitem_close') {
                 $cnt++;
-            }elseif($instructions[$i][0] == 'internallink'){
+            } elseif ($instructions[$i][0] == 'internallink') {
                 $foo = true;
                 $page = $instructions[$i][1][0];
-                resolve_pageid(getNS($ID),$page,$foo); // resolve relative to sidebar ID
+                resolve_pageid(getNS($ID), $page, $foo); // resolve relative to sidebar ID
                 $list[$page] = array(
-                                     'parents' => $parents,
-                                     'page'    => $page,
-                                     'title'   => $instructions[$i][1][1],
-                                     'lvl'     => $lvl
-                                    );
+                    'parents' => $parents,
+                    'page' => $page,
+                    'title' => $instructions[$i][1][1],
+                    'lvl' => $lvl,
+                );
             } elseif ($instructions[$i][0] == 'externallink') {
                 $url = $instructions[$i][1][0];
-                $list['_'.$page] = array(
+                $list['_' . $page] = array(
                     'parents' => $parents,
-                    'page'    => $url,
-                    'title'   => $instructions[$i][1][1],
-                    'lvl'     => $lvl
+                    'page' => $url,
+                    'title' => $instructions[$i][1][1],
+                    'lvl' => $lvl,
                 );
             }
         }
-        return array(wikiFN($id),$list,$opt);
+        return array(wikiFN($id), $list, $opt);
     }
 
     /**
@@ -103,12 +109,13 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      *
      * We handle all modes (except meta) because we pass all output creation back to the parent
      */
-    function render($format, Doku_Renderer $R, $data) {
-        $fn   = $data[0];
-        $opt  = $data[2];
+    function render($format, Doku_Renderer $R, $data)
+    {
+        $fn = $data[0];
+        $opt = $data[2];
         $data = $data[1];
 
-        if($format == 'metadata'){
+        if ($format == 'metadata') {
             $R->meta['relation']['naviplugin'][] = $fn;
             return true;
         }
@@ -125,37 +132,40 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         return true;
     }
 
-    public function getOpenPath($data, $opt) {
+    public function getOpenPath($data, $opt)
+    {
         global $INFO;
         $openPath = array();
-        if(isset($data[$INFO['id']])){
-            $openPath = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
-            array_push($openPath,$INFO['id']);
-        }elseif($opt == 'ns'){
-            $ns   = $INFO['id'];
+        if (isset($data[$INFO['id']])) {
+            $openPath = (array)$data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
+            array_push($openPath, $INFO['id']);
+        } elseif ($opt == 'ns') {
+            $ns = $INFO['id'];
 
             // traverse up for matching namespaces
-            if($data) do {
-                $ns = getNS($ns);
-                $try = "$ns:";
-                resolve_pageid('',$try,$foo);
-                if(isset($data[$try])){
-                    // got a start page
-                    $openPath = (array) $data[$try]['parents'];
-                    array_push($openPath,$try);
-                    break;
-                }else{
-                    // search for the first page matching the namespace
-                    foreach($data as $key => $junk){
-                        if(getNS($key) == $ns){
-                            $openPath = (array) $data[$key]['parents'];
-                            array_push($openPath,$key);
-                            break 2;
+            if ($data) {
+                do {
+                    $ns = getNS($ns);
+                    $try = "$ns:";
+                    resolve_pageid('', $try, $foo);
+                    if (isset($data[$try])) {
+                        // got a start page
+                        $openPath = (array)$data[$try]['parents'];
+                        array_push($openPath, $try);
+                        break;
+                    } else {
+                        // search for the first page matching the namespace
+                        foreach ($data as $key => $junk) {
+                            if (getNS($key) == $ns) {
+                                $openPath = (array)$data[$key]['parents'];
+                                array_push($openPath, $key);
+                                break 2;
+                            }
                         }
                     }
-                }
 
-            }while($ns);
+                } while ($ns);
+            }
         }
         return $openPath;
     }
@@ -165,7 +175,8 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
      * @param $parent
      * @param Doku_Renderer $R
      */
-    public function renderTree($data, $parent, Doku_Renderer $R) {
+    public function renderTree($data, $parent, Doku_Renderer $R)
+    {
 // create a correctly nested list (or so I hope)
         $open = false;
         $lvl = 1;
