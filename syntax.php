@@ -8,6 +8,11 @@
 
 class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
 {
+    protected $defaultOptions = [
+        'ns' => false,
+        'full' => false,
+        'js' => false,
+    ];
 
     /** * @inheritDoc */
     function getType()
@@ -51,8 +56,8 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
     function render($format, Doku_Renderer $R, $data)
     {
         $fn = $data[0];
-        $options = $data[2];
         $navItems = $data[1];
+        $options = $data[2];
 
         if ($format == 'metadata') {
             $R->meta['relation']['naviplugin'][] = $fn;
@@ -68,6 +73,25 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
         $R->doc .= '</div>';
 
         return true;
+    }
+
+    /**
+     * Simple accessor to call the plugin from templates
+     *
+     * @param string $controlPage
+     * @param array $options
+     * @return string the HTML tree
+     */
+    public function tpl($controlPage, $options = [])
+    {
+        $options = array_merge($this->defaultOptions, $options);
+        $R = new \Doku_Renderer_xhtml();
+        $this->render('xhtml', $R, [
+            wikiFN($controlPage),
+            $this->parseNavigationControlPage($controlPage),
+            $options,
+        ]);
+        return $R->doc;
     }
 
     /**
@@ -264,11 +288,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
      */
     protected function parseOptions($opts)
     {
-        $options = [
-            'ns' => false,
-            'full' => false,
-            'js' => false,
-        ];
+        $options = $this->defaultOptions;
 
         foreach (explode('&', $opts) as $opt) {
             $options[$opt] = true;
