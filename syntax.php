@@ -62,9 +62,8 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
         $R->info['cache'] = false; // no cache please
 
         $parentPath = $this->getOpenPath($navItems, $options);
-        $arrowLocation = $this->getConf('arrow');
 
-        $R->doc .= '<div class="plugin__navi ' . $arrowLocation . '">';
+        $R->doc .= '<div class="plugin__navi ' . ($options['full'] ? 'full' : '') . '">';
         $this->renderTree($navItems, $parentPath, $R, $options['full']);
         $R->doc .= '</div>';
 
