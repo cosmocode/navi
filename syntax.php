@@ -63,7 +63,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
 
         $parentPath = $this->getOpenPath($navItems, $options);
 
-        $R->doc .= '<div class="plugin__navi ' . ($options['full'] ? 'full' : '') . '">';
+        $R->doc .= '<div class="plugin__navi ' . ($options['js'] ? 'js' : '') . '">';
         $this->renderTree($navItems, $parentPath, $R, $options['full']);
         $R->doc .= '</div>';
 
@@ -267,11 +267,14 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
         $options = [
             'ns' => false,
             'full' => false,
+            'js' => false,
         ];
 
         foreach (explode('&', $opts) as $opt) {
             $options[$opt] = true;
         }
+
+        if ($options['js']) $options['full'] = true;
 
         return $options;
     }
