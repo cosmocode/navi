@@ -106,6 +106,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
 
         // fetch the instructions of the control page
         $instructions = p_cached_instructions(wikiFN($controlPage), false, $controlPage);
+        if(!$instructions) return [];
 
         // prepare some vars
         $max = count($instructions);
