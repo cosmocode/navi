@@ -1,45 +1,20 @@
-#dokuwiki__aside, .sidebar_box {
+
 div.plugin__navi {
-    span.arrowUnderlay {
-        padding: 4px;
-        cursor: pointer;
-        background: no-repeat top right/100%;
+    li {
+        list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAA1BMVEWZmZl86KQWAAAACklEQVQI12OAAwAACgABaQY5MgAAAABJRU5ErkJggg==);
     }
-    
+
     li.open {
-        span.arrowUnderlay {
-             background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAMAAAC6V+0/AAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMAAQcJCgsUIDZGW2Jjmt75/Rmge4gAAABISURBVBjTY2CgJWDmwBRj4RPkxiImiC4KEuNHEwWJcbPyoYiyQLgsyKJwDpIoNiY2TUyYxnMxsAlgOISXgYGdE827PIy0CEUAdlAEbg1NcZ0AAAAASUVORK5CYII=);
-        }
+        list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEUAAACZmZl+9SADAAAAAXRSTlMAQObYZgAAABNJREFUeAFj+AeENQwWDAIMQAAAHhICwcrz0MAAAAAASUVORK5CYII=);
     }
 
     li.close {
-        span.arrowUnderlay {
-            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUBAMAAAB/pwA+AAAAMFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABaPxwLAAAAD3RSTlMAAQIECiMlYWJ3psPc3v2CpcpnAAAARklEQVQIW2NgIAgUoLQBg9QVCIvjGUP8Xwcws/83A8d/sDCY6gcLg0kwHyoHEoBIgUSggiDh+VBjgMIwQZghYMB+hIF8AABJKyB+OnNcUQAAAABJRU5ErkJggg==);
-        }
+        list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAJAQMAAADAY3TdAAAABlBMVEUAAACZmZl+9SADAAAAAXRSTlMAQObYZgAAABZJREFUeAFjZmA+wNwAhiXMGcwBzAsAI6QEKNehQp8AAAAASUVORK5CYII=);
     }
 
-    &.none {
-        span.arrowUnderlay {
+    &.js {
+        li.close ul {
             display: none;
         }
     }
-
-
-    &.left {
-        li {
-            list-style-type: none;
-        }
-
-        span.arrowUnderlay {
-            position: absolute;
-            left: 1.3em;
-        }
-    }
-
-    &.right {
-        span.arrowUnderlay {
-            float: right;
-        }
-    }
-}
 }

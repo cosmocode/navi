@@ -5,54 +5,108 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Andreas Gohr <gohr@cosmocode.de>
  */
-// must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
 
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
+class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
+{
+    protected $defaultOptions = [
+        'ns' => false,
+        'full' => false,
+        'js' => false,
+    ];
 
-class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
-
-    /**
-     * What kind of syntax are we?
-     */
-    function getType(){
+    /** * @inheritDoc */
+    function getType()
+    {
         return 'substition';
     }
 
-    /**
-     * What about paragraphs?
-     */
-    function getPType(){
+    /** * @inheritDoc */
+    function getPType()
+    {
         return 'block';
     }
 
-    /**
-     * Where to sort in?
-     */
-    function getSort(){
+    /** * @inheritDoc */
+    function getSort()
+    {
         return 155;
     }
 
-    /**
-     * Connect pattern to lexer
-     */
-    function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('{{navi>[^}]+}}',$mode,'plugin_navi');
+    /** * @inheritDoc */
+    function connectTo($mode)
+    {
+        $this->Lexer->addSpecialPattern('{{navi>[^}]+}}', $mode, 'plugin_navi');
+    }
+
+    /** * @inheritDoc */
+    function handle($match, $state, $pos, Doku_Handler $handler)
+    {
+        $id = substr($match, 7, -2);
+        list($id, $opts) = explode('?', $id, 2);
+        $options = $this->parseOptions($opts);
+        $list = $this->parseNavigationControlPage(cleanID($id));
+
+        return array(wikiFN($id), $list, $options);
     }
 
     /**
-     * Handle the match
+     * @inheritDoc
+     * We handle all modes (except meta) because we pass all output creation back to the parent
      */
-    function handle($match, $state, $pos, Doku_Handler $handler){
+    function render($format, Doku_Renderer $R, $data)
+    {
+        $fn = $data[0];
+        $navItems = $data[1];
+        $options = $data[2];
+
+        if ($format == 'metadata') {
+            $R->meta['relation']['naviplugin'][] = $fn;
+            return true;
+        }
+
+        $R->info['cache'] = false; // no cache please
+
+        $parentPath = $this->getOpenPath($navItems, $options);
+
+        $R->doc .= '<div class="plugin__navi ' . ($options['js'] ? 'js' : '') . '">';
+        $this->renderTree($navItems, $parentPath, $R, $options['full']);
+        $R->doc .= '</div>';
+
+        return true;
+    }
+
+    /**
+     * Simple accessor to call the plugin from templates
+     *
+     * @param string $controlPage
+     * @param array $options
+     * @return string the HTML tree
+     */
+    public function tpl($controlPage, $options = [])
+    {
+        $options = array_merge($this->defaultOptions, $options);
+        $R = new \Doku_Renderer_xhtml();
+        $this->render('xhtml', $R, [
+            wikiFN($controlPage),
+            $this->parseNavigationControlPage($controlPage),
+            $options,
+        ]);
+        return $R->doc;
+    }
+
+    /**
+     * Parses the items from the control page
+     *
+     * @param string $controlPage ID of the control page
+     * @return array list of navigational items
+     */
+    public function parseNavigationControlPage($controlPage)
+    {
         global $ID;
 
-        $id = substr($match,7,-2);
-        list($id,$opt) = explode('?',$id,2);
-        $id = cleanID($id);
-
         // fetch the instructions of the control page
-        $instructions = p_cached_instructions(wikiFN($id),false,$id);
+        $instructions = p_cached_instructions(wikiFN($controlPage), false, $controlPage);
+        if(!$instructions) return [];
 
         // prepare some vars
         $max = count($instructions);
@@ -60,121 +114,108 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         $lvl = 0;
         $parents = array();
         $page = '';
-        $cnt  = 0;
+        $cnt = 0;
 
         // build a lookup table
-        for($i=0; $i<$max; $i++){
-            if($instructions[$i][0] == 'listu_open'){
+        $list = [];
+        for ($i = 0; $i < $max; $i++) {
+            if ($instructions[$i][0] == 'listu_open') {
                 $pre = false;
                 $lvl++;
-                if($page) array_push($parents,$page);
-            }elseif($instructions[$i][0] == 'listu_close'){
+                if ($page) array_push($parents, $page);
+            } elseif ($instructions[$i][0] == 'listu_close') {
                 $lvl--;
                 array_pop($parents);
-            }elseif($pre || $lvl == 0){
+            } elseif ($pre || $lvl == 0) {
                 unset($instructions[$i]);
-            }elseif($instructions[$i][0] == 'listitem_close'){
+            } elseif ($instructions[$i][0] == 'listitem_close') {
                 $cnt++;
-            }elseif($instructions[$i][0] == 'internallink'){
+            } elseif ($instructions[$i][0] == 'internallink') {
                 $foo = true;
                 $page = $instructions[$i][1][0];
-                resolve_pageid(getNS($ID),$page,$foo); // resolve relative to sidebar ID
+                resolve_pageid(getNS($ID), $page, $foo); // resolve relative to sidebar ID
                 $list[$page] = array(
-                                     'parents' => $parents,
-                                     'page'    => $page,
-                                     'title'   => $instructions[$i][1][1],
-                                     'lvl'     => $lvl
-                                    );
+                    'parents' => $parents,
+                    'page' => $page,
+                    'title' => $instructions[$i][1][1],
+                    'lvl' => $lvl,
+                );
             } elseif ($instructions[$i][0] == 'externallink') {
                 $url = $instructions[$i][1][0];
-                $list['_'.$page] = array(
+                $list['_' . $page] = array(
                     'parents' => $parents,
-                    'page'    => $url,
-                    'title'   => $instructions[$i][1][1],
-                    'lvl'     => $lvl
+                    'page' => $url,
+                    'title' => $instructions[$i][1][1],
+                    'lvl' => $lvl,
                 );
             }
         }
-        return array(wikiFN($id),$list,$opt);
+        return $list;
     }
 
     /**
-     * Create output
+     * Create a "path" of items to be opened above the current page
      *
-     * We handle all modes (except meta) because we pass all output creation back to the parent
+     * @param array $navItems list of navigation items
+     * @param array $options Configuration options
+     * @return array
      */
-    function render($format, Doku_Renderer $R, $data) {
-        $fn   = $data[0];
-        $opt  = $data[2];
-        $data = $data[1];
-
-        if($format == 'metadata'){
-            $R->meta['relation']['naviplugin'][] = $fn;
-            return true;
-        }
-
-        $R->info['cache'] = false; // no cache please
-
-        $path = $this->getOpenPath($data, $opt);
-        $arrowLocation = $this->getConf('arrow');
-
-        $R->doc .= '<div class="plugin__navi ' . $arrowLocation . '">';
-        $this->renderTree($data, $path, $R);
-        $R->doc .= '</div>';
-
-        return true;
-    }
-
-    public function getOpenPath($data, $opt) {
+    public function getOpenPath($navItems, $options)
+    {
         global $INFO;
         $openPath = array();
-        if(isset($data[$INFO['id']])){
-            $openPath = (array) $data[$INFO['id']]['parents']; // get the "path" of the page we're on currently
-            array_push($openPath,$INFO['id']);
-        }elseif($opt == 'ns'){
-            $ns   = $INFO['id'];
+        if (isset($navItems[$INFO['id']])) {
+            $openPath = (array)$navItems[$INFO['id']]['parents']; // get the "path" of the page we're on currently
+            array_push($openPath, $INFO['id']);
+        } elseif ($options['ns']) {
+            $ns = $INFO['id'];
 
             // traverse up for matching namespaces
-            if($data) do {
-                $ns = getNS($ns);
-                $try = "$ns:";
-                resolve_pageid('',$try,$foo);
-                if(isset($data[$try])){
-                    // got a start page
-                    $openPath = (array) $data[$try]['parents'];
-                    array_push($openPath,$try);
-                    break;
-                }else{
-                    // search for the first page matching the namespace
-                    foreach($data as $key => $junk){
-                        if(getNS($key) == $ns){
-                            $openPath = (array) $data[$key]['parents'];
-                            array_push($openPath,$key);
-                            break 2;
+            if ($navItems) {
+                do {
+                    $ns = getNS($ns);
+                    $try = "$ns:";
+                    resolve_pageid('', $try, $foo);
+                    if (isset($navItems[$try])) {
+                        // got a start page
+                        $openPath = (array)$navItems[$try]['parents'];
+                        array_push($openPath, $try);
+                        break;
+                    } else {
+                        // search for the first page matching the namespace
+                        foreach ($navItems as $key => $junk) {
+                            if (getNS($key) == $ns) {
+                                $openPath = (array)$navItems[$key]['parents'];
+                                array_push($openPath, $key);
+                                break 2;
+                            }
                         }
                     }
-                }
 
-            }while($ns);
+                } while ($ns);
+            }
         }
         return $openPath;
     }
 
     /**
-     * @param $data
-     * @param $parent
-     * @param Doku_Renderer $R
+     * create a correctly nested list (or so I hope)
+     *
+     * @param array $navItems list of navigational items
+     * @param array $parentPath path of parent items
+     * @param Doku_Renderer $R should closed subitems still be rendered?
+     * @param bool $fullTree
      */
-    public function renderTree($data, $parent, Doku_Renderer $R) {
-// create a correctly nested list (or so I hope)
+    public function renderTree($navItems, $parentPath, Doku_Renderer $R, $fullTree = false)
+    {
         $open = false;
         $lvl = 1;
         $R->listu_open();
 
         // read if item has childs and if it is open or closed
         $upper = array();
-        foreach ((array)$data as $pid => $info) {
-            $state = (array_diff($info['parents'], $parent)) ? 'close' : '';
+        foreach ((array)$navItems as $pid => $info) {
+            $state = (array_diff($info['parents'], $parentPath)) ? 'close' : '';
             $countparents = count($info['parents']);
             if ($countparents > '0') {
                 for ($i = 0; $i < $countparents; $i++) {
@@ -185,11 +226,12 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
         }
         unset($pid);
 
-        foreach ((array)$data as $pid => $info) {
+        foreach ((array)$navItems as $pid => $info) {
             // only show if we are in the "path"
-            if (array_diff($info['parents'], $parent)) {
+            if (!$fullTree && array_diff($info['parents'], $parentPath)) {
                 continue;
             }
+
             if ($upper[$pid]) {
                 $menuitem = ($upper[$pid] == 'open') ? 'open' : 'close';
             } else {
@@ -208,7 +250,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 $R->listitem_open($lvl . ' ' . $menuitem);
                 $open = true;
             } elseif ($lvl > $info['lvl']) {
-                for ($lvl; $lvl > $info['lvl']; --$lvl) {
+                for (; $lvl > $info['lvl']; --$lvl) {
                     $R->listitem_close();
                     $R->listu_close();
                 }
@@ -216,7 +258,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
                 $R->listitem_open($lvl . ' ' . $menuitem);
             } elseif ($lvl < $info['lvl']) {
                 // more than one run is bad nesting!
-                for ($lvl; $lvl < $info['lvl']; ++$lvl) {
+                for (; $lvl < $info['lvl']; ++$lvl) {
                     $R->listu_open();
                     $R->listitem_open($lvl + 1 . ' ' . $menuitem);
                     $open = true;
@@ -237,5 +279,24 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin {
             $R->listu_close();
             --$lvl;
         }
+    }
+
+    /**
+     * Parse the option string into an array
+     *
+     * @param string $opts
+     * @return array
+     */
+    protected function parseOptions($opts)
+    {
+        $options = $this->defaultOptions;
+
+        foreach (explode('&', $opts) as $opt) {
+            $options[$opt] = true;
+        }
+
+        if ($options['js']) $options['full'] = true;
+
+        return $options;
     }
 }

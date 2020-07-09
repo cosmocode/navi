@@ -7,19 +7,23 @@
  * @group plugins
  *
  */
-class basic_plugin_navi_test extends DokuWikiTest {
+class basic_plugin_navi_test extends DokuWikiTest
+{
 
     protected $pluginsEnabled = array('navi');
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
         parent::tearDown();
     }
 
-    public function test_controlpage_simple() {
+    public function test_controlpage_simple()
+    {
         // arrange
         $controlpage = "  * [[a]]\n  * [[b]]\n    * [[c]]";
         saveWikiText('controlpage', $controlpage, '');
@@ -30,10 +34,10 @@ class basic_plugin_navi_test extends DokuWikiTest {
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
         // assert
-        $expectedHTML = '<div class="plugin__navi left"><ul>
-<li class="level1 "><div class="li"><a href="/./doku.php?id=a" class="wikilink2" title="a" rel="nofollow">a</a></div>
+        $expectedHTML = '<div class="plugin__navi "><ul>
+<li class="level1 "><div class="li"><a href="/./doku.php?id=a" class="wikilink2" title="a" rel="nofollow" data-wiki-id="a">a</a></div>
 </li>
-<li class="level1 close"><div class="li"><a href="/./doku.php?id=b" class="wikilink2" title="b" rel="nofollow">b</a></div>
+<li class="level1 close"><div class="li"><a href="/./doku.php?id=b" class="wikilink2" title="b" rel="nofollow" data-wiki-id="b">b</a></div>
 </li>
 </ul>
 </div>';
@@ -41,7 +45,8 @@ class basic_plugin_navi_test extends DokuWikiTest {
 
     }
 
-    public function test_controlpage_complex() {
+    public function test_controlpage_complex()
+    {
         // arrange
         $controlpage = "
   * [[en:products:a:start|BasePage]]

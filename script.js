@@ -1,12 +1,11 @@
-jQuery(function() {
+jQuery(function () {
     'use strict';
-    
-    jQuery('li.open, li.close').find('> div.li').each(function (index, element){
-        var link = jQuery(element).find('a').attr('href');
-        var $arrowSpan = jQuery('<span></span>').click(function (event) {
-            window.location = link;
-        });
-        $arrowSpan.addClass('arrowUnderlay');
-        jQuery(element).append($arrowSpan);
-    });
+
+    jQuery('.plugin__navi.js').find('li.close, li.open')
+        .on('click', function (e) {
+            jQuery(e.target).toggleClass('close open');
+            e.stopPropagation();
+        })
+        .css('cursor', 'pointer')
+    ;
 });
