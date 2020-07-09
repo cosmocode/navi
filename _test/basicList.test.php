@@ -34,7 +34,7 @@ class basic_plugin_navi_test extends DokuWikiTest
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
         // assert
-        $expectedHTML = '<div class="plugin__navi left"><ul>
+        $expectedHTML = '<div class="plugin__navi "><ul>
 <li class="level1 "><div class="li"><a href="/./doku.php?id=a" class="wikilink2" title="a" rel="nofollow" data-wiki-id="a">a</a></div>
 </li>
 <li class="level1 close"><div class="li"><a href="/./doku.php?id=b" class="wikilink2" title="b" rel="nofollow" data-wiki-id="b">b</a></div>
