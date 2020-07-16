@@ -84,6 +84,11 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
      */
     public function tpl($controlPage, $options = [])
     {
+        // resolve relative to the controlpage because we have no sidebar context
+        global $ID;
+        $oldid = $ID;
+        $ID = $controlPage;
+
         $options = array_merge($this->defaultOptions, $options);
         $R = new \Doku_Renderer_xhtml();
         $this->render('xhtml', $R, [
@@ -91,6 +96,8 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
             $this->parseNavigationControlPage($controlPage),
             $options,
         ]);
+
+        $ID = $oldid;
         return $R->doc;
     }
 
@@ -106,7 +113,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
 
         // fetch the instructions of the control page
         $instructions = p_cached_instructions(wikiFN($controlPage), false, $controlPage);
-        if(!$instructions) return [];
+        if (!$instructions) return [];
 
         // prepare some vars
         $max = count($instructions);
