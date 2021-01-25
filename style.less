@@ -18,3 +18,12 @@ div.plugin__navi {
         }
     }
 }
+
+/**
+ * Fix conflict with rules for .close in the bootrap3 template
+ */
+aside#dokuwiki__aside .dw-sidebar-content .plugin__navi ul li.close {
+    opacity: unset;
+    font-size: unset;
+    font-weight: unset;
+}
