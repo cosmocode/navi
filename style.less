@@ -2,17 +2,14 @@
 div.plugin__navi {
     li {
         list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAA1BMVEWZmZl86KQWAAAACklEQVQI12OAAwAACgABaQY5MgAAAABJRU5ErkJggg==);
-        all: unset
     }
 
     li.open {
         list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEUAAACZmZl+9SADAAAAAXRSTlMAQObYZgAAABNJREFUeAFj+AeENQwWDAIMQAAAHhICwcrz0MAAAAAASUVORK5CYII=);
-        all: unset
     }
 
     li.close {
         list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAJAQMAAADAY3TdAAAABlBMVEUAAACZmZl+9SADAAAAAXRSTlMAQObYZgAAABZJREFUeAFjZmA+wNwAhiXMGcwBzAsAI6QEKNehQp8AAAAASUVORK5CYII=);
-        all: unset
     }
 
     &.js {
@@ -20,4 +17,13 @@ div.plugin__navi {
             display: none;
         }
     }
+}
+
+/**
+ * Fix conflict with rules for .close in the bootrap3 template
+ */
+aside#dokuwiki__aside .dw-sidebar-content .plugin__navi ul li.close {
+    opacity: unset;
+    font-size: unset;
+    font-weight: unset;
 }
