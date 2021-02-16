@@ -42,11 +42,14 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
     function handle($match, $state, $pos, Doku_Handler $handler)
     {
         $id = substr($match, 7, -2);
-        list($id, $opts) = explode('?', $id, 2);
+        $opts = '';
+        if (strpos($id, '?') !== false) {
+            list($id, $opts) = explode('?', $id, 2);
+        }
         $options = $this->parseOptions($opts);
         $list = $this->parseNavigationControlPage(cleanID($id));
 
-        return array(wikiFN($id), $list, $options);
+        return [wikiFN($id), $list, $options];
     }
 
     /**
@@ -239,7 +242,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
                 continue;
             }
 
-            if ($upper[$pid]) {
+            if (!empty($upper[$pid])) {
                 $menuitem = ($upper[$pid] == 'open') ? 'open' : 'close';
             } else {
                 $menuitem = '';
