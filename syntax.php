@@ -5,7 +5,6 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Andreas Gohr <gohr@cosmocode.de>
  */
-
 class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
 {
     protected $defaultOptions = [
@@ -15,31 +14,31 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
     ];
 
     /** * @inheritDoc */
-    function getType()
+    public function getType()
     {
         return 'substition';
     }
 
     /** * @inheritDoc */
-    function getPType()
+    public function getPType()
     {
         return 'block';
     }
 
     /** * @inheritDoc */
-    function getSort()
+    public function getSort()
     {
         return 155;
     }
 
     /** * @inheritDoc */
-    function connectTo($mode)
+    public function connectTo($mode)
     {
         $this->Lexer->addSpecialPattern('{{navi>[^}]+}}', $mode, 'plugin_navi');
     }
 
     /** * @inheritDoc */
-    function handle($match, $state, $pos, Doku_Handler $handler)
+    public function handle($match, $state, $pos, Doku_Handler $handler)
     {
         $id = substr($match, 7, -2);
         $opts = '';
@@ -56,7 +55,7 @@ class syntax_plugin_navi extends DokuWiki_Syntax_Plugin
      * @inheritDoc
      * We handle all modes (except meta) because we pass all output creation back to the parent
      */
-    function render($format, Doku_Renderer $R, $data)
+    public function render($format, Doku_Renderer $R, $data)
     {
         $fn = $data[0];
         $navItems = $data[1];

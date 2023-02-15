@@ -1,19 +1,13 @@
 <?php
+
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Andreas Gohr <gohr@cosmocode.de>
  */
-
-/**
- * All DokuWiki plugins to extend the parser/rendering mechanism
- * need to inherit from this class
- */
 class action_plugin_navi extends DokuWiki_Action_Plugin
 {
 
-    /**
-     * plugin should use this method to register its handlers with the dokuwiki's event controller
-     */
+    /** @inheritDoc */
     function register(Doku_Event_Handler $controller)
     {
         $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handle_cache_prepare');
@@ -22,7 +16,7 @@ class action_plugin_navi extends DokuWiki_Action_Plugin
     /**
      * prepare the cache object for default _useCache action
      */
-    function handle_cache_prepare(&$event, $param)
+    public function handle_cache_prepare(Doku_Event $event)
     {
         $cache =& $event->data;
 

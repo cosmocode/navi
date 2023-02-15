@@ -1,5 +1,11 @@
 <?php
 
+namespace dokuwiki\plugin\navi\test;
+
+use DokuWikiTest;
+use phpQuery;
+
+
 /**
  * Tests for functionality of the navi plugin
  *
@@ -7,20 +13,10 @@
  * @group plugins
  *
  */
-class basic_plugin_navi_test extends DokuWikiTest
+class BasicListTest extends DokuWikiTest
 {
 
-    protected $pluginsEnabled = array('navi');
-
-    public function setUp()
-    {
-        parent::setUp();
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-    }
+    protected $pluginsEnabled = ['navi'];
 
     public function test_controlpage_simple()
     {
@@ -30,7 +26,10 @@ class basic_plugin_navi_test extends DokuWikiTest
         saveWikiText('navi', '{{navi>controlpage}}', '');
 
         // act
-        $info = array();
+        global $INFO;
+        $INFO['id'] = 'egal';
+
+        $info = [];
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
         // assert
@@ -61,42 +60,47 @@ class basic_plugin_navi_test extends DokuWikiTest
         global $ID, $INFO;
 
         // act
-        $info = array();
+        $info = [];
         $ID = 'en:products:c:start';
         $INFO['id'] = 'en:products:c:start';
         $actualHTML = p_render('xhtml', p_get_instructions('{{navi>controlpage}}'), $info);
 
-        $pq = phpQuery::newDocumentXHTML($actualHTML);
+        if(class_exists('DOMWrap\Document')) {
+            $pq = (new \DOMWrap\Document())->html($actualHTML);
+        } else {
+            // deprecated
+            $pq = \phpQuery::newDocumentHTML($actualHTML);
+        }
 
-        $actualPages = array();
+        $actualPages = [];
         foreach ($pq->find('a') as $page) {
             $actualPages[] = $page->getAttribute('title');
         }
 
-        $actualLiOpen = array();
+        $actualLiOpen = [];
         foreach ($pq->find('li.open > div > a, li.open > div > span > a') as $page) {
             $actualLiOpen[] = $page->getAttribute('title');
         }
 
-        $actualLiClose = array();
+        $actualLiClose = [];
         foreach ($pq->find('li.close > div > a, li.close > div > span > a') as $page) {
             $actualLiClose[] = $page->getAttribute('title');
         }
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             0 => 'en:products:a:start',
             1 => 'en:products:b:d:start',
             2 => 'en:products:b:archive:start',
             3 => 'en:products:c:start',
             4 => 'en:products:d:start',
-        ), $actualPages, 'the correct pages in the correct order');
-        $this->assertEquals(array(
+        ], $actualPages, 'the correct pages in the correct order');
+        $this->assertEquals([
             0 => 'en:products:a:start',
             1 => 'en:products:c:start',
-        ), $actualLiOpen, 'the pages which have have children and are open should have the "open" class');
-        $this->assertEquals(array(
+        ], $actualLiOpen, 'the pages which have have children and are open should have the "open" class');
+        $this->assertEquals([
             0 => 'en:products:b:d:start',
-        ), $actualLiClose, 'the pages which have have children, but are closed should have the "close" class');
+        ], $actualLiClose, 'the pages which have have children, but are closed should have the "close" class');
 
     }
 }
